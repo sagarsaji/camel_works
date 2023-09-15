@@ -56,6 +56,14 @@
 			<version>4.0.0</version>
 		</dependency>
 
+		<!--
+		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-jsonpath-starter -->
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jsonpath-starter</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-http -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>

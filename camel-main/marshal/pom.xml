@@ -35,6 +35,13 @@
 			<version>4.0.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-cron -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-cron</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

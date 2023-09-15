@@ -2,9 +2,10 @@ package com.ust.product.entity;
 
 import java.util.List;
 
-
+import org.bson.Document;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class Order {
 
@@ -15,11 +16,11 @@ public class Order {
 	@JsonProperty("quantity")
 	private int quantity;
 	@JsonProperty("products")
-	private List<String> products;
+	private List<JsonNode> products;
 	@JsonProperty("dateoforder")
 	private String dateoforder;
 
-	public Order(int _id, List<Integer> productid, int quantity, List<String> products, String dateoforder) {
+	public Order(int _id, List<Integer> productid, int quantity, List<JsonNode> products, String dateoforder) {
 		super();
 		this._id = _id;
 		this.productid = productid;
@@ -52,11 +53,11 @@ public class Order {
 		this.quantity = quantity;
 	}
 
-	public List<String> getProducts() {
+	public List<JsonNode> getProducts() {
 		return products;
 	}
 
-	public void setProducts(List<String> products) {
+	public void setProducts(List<JsonNode> products) {
 		this.products = products;
 	}
 
@@ -64,8 +65,8 @@ public class Order {
 		return dateoforder;
 	}
 
-	public void setDateoforder(String date) {
-		this.dateoforder = date;
+	public void setDateoforder(String dateoforder) {
+		this.dateoforder = dateoforder;
 	}
 
 	public Order() {

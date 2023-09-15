@@ -32,36 +32,6 @@ public class OrderService {
 
 	}
 
-	public void addOrders(Exchange exchange) {
-
-		Order neworders = exchange.getIn().getHeader("messagebody", Order.class);
-		exchange.getIn().setBody(neworders);
-		List<String> products = new ArrayList<>();
-		for (int pid : neworders.getProductid()) {
-			String product = consumer.receiveBody("http://localhost:9090/product/getproducts/product/"+pid, String.class);
-			exchange.getIn().setBody(product);
-			System.out.println(exchange.getIn().getBody());
-			if(product.compareTo("The given product id is not found") == 0) {
-				Order order = null;
-				exchange.getIn().setHeader("CamelHttpResponseCode",404);
-				exchange.getIn().setBody(order);
-			}
-			else {
-				System.out.println("id " + pid + " found");
-				exchange.getIn().setHeader("CamelHttpResponseCode",201);
-				products.add(product);
-				neworders.setProducts(products);
-				Date currentdate = new Date();
-		
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				String date = sdf.format(currentdate);
-				neworders.setDateoforder(date);
-				exchange.getIn().setBody(neworders);
-			}
-
-		}
-
-
-	}
+	
 
 }
