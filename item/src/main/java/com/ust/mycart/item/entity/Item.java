@@ -12,8 +12,6 @@ public class Item {
 	private String itemName;
 	@JsonProperty("categoryId")
 	private String categoryId;
-	@JsonProperty("categoryName")
-	private String categoryName;
 	@JsonProperty("lastUpdateDate")
 	private String lastUpdateDate;
 	@JsonProperty("itemPrice")
@@ -25,13 +23,12 @@ public class Item {
 	@JsonProperty("review")
 	private List<Review> review;
 
-	public Item(String _id, String itemName, String categoryId, String categoryName, String lastUpdateDate,
-			ItemPrice itemPrice, StockDetails stockDetails, Boolean specialProduct, List<Review> review) {
+	public Item(String _id, String itemName, String categoryId, String lastUpdateDate, ItemPrice itemPrice,
+			StockDetails stockDetails, Boolean specialProduct, List<Review> review) {
 		super();
 		this._id = _id;
 		this.itemName = itemName;
 		this.categoryId = categoryId;
-		this.categoryName = categoryName;
 		this.lastUpdateDate = lastUpdateDate;
 		this.itemPrice = itemPrice;
 		this.stockDetails = stockDetails;
@@ -61,14 +58,6 @@ public class Item {
 
 	public void setCategoryId(String categoryId) {
 		this.categoryId = categoryId;
-	}
-
-	public String getCategoryName() {
-		return categoryName;
-	}
-
-	public void setCategoryName(String categoryName) {
-		this.categoryName = categoryName;
 	}
 
 	public String getLastUpdateDate() {

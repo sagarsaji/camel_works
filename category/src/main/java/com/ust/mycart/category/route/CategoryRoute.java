@@ -5,6 +5,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
+import com.ust.mycart.category.processor.IdToStringProcessor;
+
 @Component
 public class CategoryRoute extends RouteBuilder{
 
@@ -13,20 +15,21 @@ public class CategoryRoute extends RouteBuilder{
 		// TODO Auto-generated method stub
 		
 		rest()
-			.get("/getcategoryname/{_id}").to("direct:getcategoryname");
+			.get("/getcategoryname/{_id}").to("direct:getcategoryname")
+			.get("/getcategorydept/{_id}").to("direct:getcategorydept");
+		
 		
 		from("direct:getcategoryname")
-		.process(new Processor() {
-			
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				// TODO Auto-generated method stub
-				String id = exchange.getIn().getHeader("_id",String.class);
-				exchange.getIn().setBody(id);
-			}
-		})
+		.process(new IdToStringProcessor())
 		.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById")
 		.setBody(simple("${body[categoryName]}"))
+		.log("${body}");
+		
+		
+		from("direct:getcategorydept")
+		.process(new IdToStringProcessor())
+		.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById")
+		.setBody(simple("${body[categoryDep]}"))
 		.log("${body}");
 		
 	}

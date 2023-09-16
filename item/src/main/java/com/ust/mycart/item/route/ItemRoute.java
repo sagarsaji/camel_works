@@ -1,36 +1,25 @@
 package com.ust.mycart.item.route;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.camel.ConsumerTemplate;
-import org.apache.camel.Exchange;
-import org.apache.camel.Processor;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
-import org.apache.tomcat.util.json.JSONFilter;
-import org.bson.conversions.Bson;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mongodb.BasicDBObject;
-import com.ust.mycart.item.entity.Item;
+import com.ust.mycart.item.entity.Item;	
 import com.ust.mycart.item.exception.CategoryIdErrorException;
 import com.ust.mycart.item.exception.GreaterThanZeroException;
 import com.ust.mycart.item.exception.IdNotFoundException;
 import com.ust.mycart.item.exception.ProductAlreadyExistException;
+import com.ust.mycart.item.processor.CategoryIdToStringProcessor;
 import com.ust.mycart.item.processor.CategoryNameAddingProcessor;
 import com.ust.mycart.item.processor.IdToStringProcessor;
 import com.ust.mycart.item.processor.MapCategoryToListProcessor;
+import com.ust.mycart.item.processor.StockUpdationProcessor;
 
 @Component
 public class ItemRoute extends RouteBuilder{
 	
-	@Autowired
-	private ConsumerTemplate template;
+	
 
 	@Override
 	public void configure() throws Exception {
@@ -60,7 +49,8 @@ public class ItemRoute extends RouteBuilder{
 		rest()
 			.get("/getitems/{_id}").to("direct:getitemsbyid")
 			.get("/items/{category_id}").to("direct:getbycategoryid")
-			.post("/additem").to("direct:additems");
+			.post("/additem").to("direct:additems")
+			.put("/updateitem").to("direct:updateitems");
 		
 		
 		
@@ -80,13 +70,17 @@ public class ItemRoute extends RouteBuilder{
 		
 		
 		from("direct:getbycategoryid")
+		.process(new CategoryIdToStringProcessor())
+		.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById")
+		.setBody(simple("${body[categoryName]}"))
+		.setProperty("categoryname",simple("${body}"))
 		.choice()
 			.when(header("includeSpecial").isEqualTo("true"))
-				.setHeader("CamelMongoDbCriteria", simple("{\"categoryId\": '${header.category_id}',\"specialProduct\": true}"))
+				.setHeader("CamelMongoDbCriteria", simple("{\"categoryName\": '${exchangeProperty.categoryname}',\"specialProduct\": true}"))
 			.when(header("includeSpecial").isEqualTo("false"))
-				.setHeader("CamelMongoDbCriteria", simple("{\"categoryId\": '${header.category_id}',\"specialProduct\": false}"))
+				.setHeader("CamelMongoDbCriteria", simple("{\"categoryName\": '${exchangeProperty.categoryname}',\"specialProduct\": false}"))
 			.otherwise()
-				.setHeader("CamelMongoDbCriteria", simple("{\"categoryId\": '${header.category_id}'}"))
+				.setHeader("CamelMongoDbCriteria", simple("{\"categoryName\": '${exchangeProperty.categoryname}'}"))
 		.end()
 		.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=findAll")
 		.choice()
@@ -94,18 +88,23 @@ public class ItemRoute extends RouteBuilder{
 				.throwException(new CategoryIdErrorException("not found"))
 			.otherwise()
 				.log("${body}")
+				.setProperty("finalbody",simple("${body}"))
+				.process(new CategoryIdToStringProcessor())
+				.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById")
+				.setBody(simple("${body[categoryDep]}"))
+				.setProperty("categorydept",simple("${body}"))
+				.setBody(simple("${exchangeProperty.finalbody}"))
 				.process(new MapCategoryToListProcessor())
 				.marshal().json()
 	    .end();
 
 		
-		
-		
-		
+			
 		from("direct:additems")
 		.unmarshal().json(JsonLibrary.Jackson,Item.class)
 		.marshal().json()
 		.setHeader("itemid",simple("${body[_id]}"))
+		.setHeader("category_id",simple("${body[categoryId]}"))
 		.unmarshal().json(JsonLibrary.Jackson,Item.class)
 		.log("hello : ${body.itemPrice.basePrice}")
 		.setProperty("baseprice",simple("${body.itemPrice.basePrice}"))
@@ -122,9 +121,9 @@ public class ItemRoute extends RouteBuilder{
 					.when(simple("${exchangeProperty.baseprice} > 0 && ${exchangeProperty.sellingprice} > 0"))
 						.log("greater than 0")
 						.setHeader("catId",simple("${body.categoryId}"))
-						.setHeader(Exchange.HTTP_METHOD,constant("GET"))
-						.toD("http://localhost:9091/category/getcategoryname/${header.catId}?bridgeEndpoint=true")
-						.log("${body}")
+						.process(new CategoryIdToStringProcessor())
+						.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById")
+						.setBody(simple("${body[categoryName]}"))
 						.choice()
 							.when(simple("${body} == null"))
 								.throwException(new CategoryIdErrorException("invalid"))
@@ -147,6 +146,29 @@ public class ItemRoute extends RouteBuilder{
 		.end();
 		
 		
+		
+		from("direct:updateitems")
+		.split(simple("${body[items]}"))
+			.stopOnException()
+			.setHeader("itemid",simple("${body[_id]}"))
+			.setProperty("soldout",simple("${body[stockDetails][soldOut]}"))
+			.setProperty("damaged",simple("${body[stockDetails][damaged]}"))
+			.process(new IdToStringProcessor())
+			.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=findById")
+			.choice()
+				.when(simple("${body} == null"))
+					.log("nothing present")
+					.throwException(new IdNotFoundException("not found"))
+				.otherwise()
+					.log("item found")				
+					.setProperty("availablestock",simple("${body[stockDetails][availableStock]}"))
+					.log("available stock : ${exchangeProperty.availablestock}")
+					.process(new StockUpdationProcessor())
+					.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save")
+			.end()
+		.end()
+		.setHeader("CamelHttpResponseCode",constant(200))
+		.setBody(constant("Stock Updated..."));	
 		
 	}
 

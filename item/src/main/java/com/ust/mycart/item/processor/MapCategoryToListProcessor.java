@@ -1,26 +1,37 @@
 package com.ust.mycart.item.processor;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.BasicDBObject;
 
-public class MapCategoryToListProcessor implements Processor{
+public class MapCategoryToListProcessor implements Processor {
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void process(Exchange exchange) throws Exception {
 		// TODO Auto-generated method stub
+		String categoryname = exchange.getProperty("categoryname", String.class);
+		String categorydept = exchange.getProperty("categorydept", String.class);
+
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectNode jsonNode = objectMapper.createObjectNode();
+
+		jsonNode.put("categoryName", categoryname);
+		jsonNode.put("categoryDepartment", categorydept);
+
 		List<BasicDBObject> item = exchange.getIn().getBody(List.class);
 		exchange.getIn().setBody(item);
-		Map<String,List<BasicDBObject>> map = new HashMap<>();
-		String category = exchange.getIn().getHeader("category_id",String.class);
-		map.put(category, item);
-		exchange.getIn().setBody(map);
+
+		JsonNode itemJson = objectMapper.valueToTree(item);
+
+		jsonNode.set("items", itemJson);
+		exchange.getIn().setBody(jsonNode);
 	}
 
 }
