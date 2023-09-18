@@ -1,6 +1,7 @@
 package com.ust.mycart.item.route;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.mongodb.MongoDbConstants;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +10,7 @@ import com.ust.mycart.item.exception.CategoryIdErrorException;
 import com.ust.mycart.item.exception.GreaterThanZeroException;
 import com.ust.mycart.item.exception.IdNotFoundException;
 import com.ust.mycart.item.exception.ProductAlreadyExistException;
+import com.ust.mycart.item.headers.HeaderClass;
 import com.ust.mycart.item.processor.CategoryNameAddingProcessor;
 import com.ust.mycart.item.processor.MapCategoryToListProcessor;
 import com.ust.mycart.item.processor.StockUpdationProcessor;
@@ -20,16 +22,16 @@ public class ItemRoute extends RouteBuilder {
 	public void configure() throws Exception {
 
 		// Handled exception here
-		onException(IdNotFoundException.class).handled(true).setHeader("CamelHttpResponseCode", constant(404))
+		onException(IdNotFoundException.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(404))
 				.setBody(simple("{{error.itemNotFound}}"));
 
-		onException(ProductAlreadyExistException.class).handled(true).setHeader("CamelHttpResponseCode", constant(409))
+		onException(ProductAlreadyExistException.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(409))
 				.setBody(constant("{{error.productAlreadyExist}}"));
 
-		onException(CategoryIdErrorException.class).handled(true).setHeader("CamelHttpResponseCode", constant(404))
+		onException(CategoryIdErrorException.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(404))
 				.setBody(constant("{{error.categoryNotFound}}"));
 
-		onException(GreaterThanZeroException.class).handled(true).setHeader("CamelHttpResponseCode", constant(400))
+		onException(GreaterThanZeroException.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(400))
 				.setBody(constant("{{error.greaterThanZeroException}}"));
 
 		onException(Throwable.class).handled(true).setBody(simple("An error occured : ${exception.message}"));
@@ -54,21 +56,21 @@ public class ItemRoute extends RouteBuilder {
 				.marshal().json().end();
 
 		from("direct:getByCategoryId").setBody(simple("${header.category_id}"))
-				.setHeader("CamelMongoDbFieldsProjection", constant("{ categoryName: 1 , categoryDep: 1}"))
+				.setHeader(MongoDbConstants.FIELDS_PROJECTION, constant("{ categoryName: 1 , categoryDep: 1}"))
 				.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById").end().log("${body}")
 				.setProperty("categoryname", simple("${body[categoryName]}"))
 				.setProperty("categorydept", simple("${body[categoryDep]}"))
 				.log("hello : ${exchangeProperty.categoryname}").log("hii : ${exchangeProperty.categorydept}")
 
 				.choice().when(header("includeSpecial").isEqualTo("true"))
-				.setHeader("CamelMongoDbCriteria",
+				.setHeader(HeaderClass.CAMEL_MONGODB_CRITERIA,
 						simple("{\"categoryName\": '${exchangeProperty.categoryname}',\"specialProduct\": true}"))
 				.when(header("includeSpecial").isEqualTo("false"))
-				.setHeader("CamelMongoDbCriteria",
+				.setHeader(HeaderClass.CAMEL_MONGODB_CRITERIA,
 						simple("{\"categoryName\": '${exchangeProperty.categoryname}',\"specialProduct\": false}"))
 				.otherwise()
-				.setHeader("CamelMongoDbCriteria", simple("{\"categoryName\": '${exchangeProperty.categoryname}'}"))
-				.end().removeHeader("CamelMongoDbFieldsProjection")
+				.setHeader(HeaderClass.CAMEL_MONGODB_CRITERIA, simple("{\"categoryName\": '${exchangeProperty.categoryname}'}"))
+				.end().removeHeader(MongoDbConstants.FIELDS_PROJECTION)
 
 				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=findAll").log("${body}")
 
@@ -90,14 +92,14 @@ public class ItemRoute extends RouteBuilder {
 				.when(simple("${body} == null")).log("add order").setBody(simple("${exchangeProperty.messagebody}"))
 				.choice().when(simple("${exchangeProperty.baseprice} > 0 && ${exchangeProperty.sellingprice} > 0"))
 				.log("greater than 0").setBody(simple("${header.category_id}"))
-				.setHeader("CamelMongoDbFieldsProjection", constant("{ categoryName: 1 , _id: 0}"))
+				.setHeader(MongoDbConstants.FIELDS_PROJECTION, constant("{ categoryName: 1 , _id: 0}"))
 				.to("mongodb:mycartdb?database=mycartdb&collection=category&operation=findById")
-				.setBody(simple("${body[categoryName]}")).removeHeader("CamelMongoDbFieldsProjection").choice()
+				.setBody(simple("${body[categoryName]}")).removeHeader(MongoDbConstants.FIELDS_PROJECTION).choice()
 				.when(simple("${body} == null")).throwException(new CategoryIdErrorException("invalid")).otherwise()
 				.setProperty("categoryname", simple("${body}")).log("hello : ${exchangeProperty.categoryname}")
 				.process(new CategoryNameAddingProcessor())
 				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=insert")
-				.setHeader("CamelHttpResponseCode", constant(201)).setBody(constant("Order Placed...")).log("${body}")
+				.setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(201)).setBody(constant("Order Placed...")).log("${body}")
 				.endChoice().otherwise().log("not greater than 0")
 				.throwException(new GreaterThanZeroException("should be greater")).endChoice().otherwise()
 				.log("dont add").throwException(new ProductAlreadyExistException("Item exist")).end();
@@ -112,7 +114,7 @@ public class ItemRoute extends RouteBuilder {
 				.setProperty("availablestock", simple("${body[stockDetails][availableStock]}"))
 				.log("available stock : ${exchangeProperty.availablestock}").process(new StockUpdationProcessor())
 				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save").end().end()
-				.setHeader("CamelHttpResponseCode", constant(200)).setBody(constant("Stock Updated..."));
+				.setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(200)).setBody(constant("Stock Updated..."));
 
 	}
 
