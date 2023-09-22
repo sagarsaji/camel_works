@@ -1,9 +1,9 @@
 package com.ust.mycart.activemqconsumer.route;
 
+import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
-import com.ust.mycart.activemqconsumer.exception.IdNotFoundException;
 import com.ust.mycart.activemqconsumer.headers.HeaderClass;
 import com.ust.mycart.activemqconsumer.processor.StockUpdationProcessor;
 
@@ -13,20 +13,22 @@ public class ConsumerRoute extends RouteBuilder {
 	@Override
 	public void configure() throws Exception {
 
-		onException(IdNotFoundException.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(404))
-				.setBody(simple("{{error.itemNotFound}}"));
+		// Handled exception here
+		onException(Throwable.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(500))
+				.setHeader("Content-Type", constant("application/json"))
+				.setBody(constant("{\"message\":\"{{server.internalServerError}}\"}"));
 
-		from("activemq:queue:updateItemQueue").split(simple("${body[items]}")).stopOnException()
-				.routeId("activeMqConsumer1").setHeader("itemid", simple("${body[_id]}"))
+		// Route that consumes message from activeMQ and does the update operation
+		from("activemq:queue:updateItemQueue").split(simple("${body[items]}")).split(simple("${body}"))
+				.setHeader("itemid", simple("${body[_id]}"))
 				.setProperty("soldout", simple("${body[stockDetails][soldOut]}"))
 				.setProperty("damaged", simple("${body[stockDetails][damaged]}")).setBody(simple("${header.itemid}"))
 				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=findById").choice()
-				.when(simple("${body} == null")).log("nothing present")
-				.throwException(new IdNotFoundException("not found")).otherwise().log("item found")
+				.when(simple("${body} == null")).log(LoggingLevel.INFO, "Item not found for id : ${header.itemid}")
+				.otherwise().log(LoggingLevel.INFO, "Item found for id : ${header.itemid}")
 				.setProperty("availablestock", simple("${body[stockDetails][availableStock]}"))
 				.process(new StockUpdationProcessor())
-				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save").end().end()
-				.setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(200)).setBody(constant("Stock Updated..."));
+				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save").endChoice().end().end();
 
 	}
 

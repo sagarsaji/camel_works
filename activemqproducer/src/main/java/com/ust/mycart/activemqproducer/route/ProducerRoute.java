@@ -1,18 +1,30 @@
 package com.ust.mycart.activemqproducer.route;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.dataformat.JsonLibrary;
 import org.springframework.stereotype.Component;
+
+import com.ust.mycart.activemqproducer.headers.HeaderClass;
 
 @Component
 public class ProducerRoute extends RouteBuilder {
 
 	@Override
 	public void configure() throws Exception {
-		// TODO Auto-generated method stub
 
-		rest().put("/item").to("direct:updateItem");
+		// Handled exception here
+		onException(Throwable.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(500))
+				.setHeader("Content-Type", constant("application/json"))
+				.setBody(constant("{\"message\":\"{{server.internalServerError}}\"}"));
 
-		from("direct:updateItem").to("activemq:queue:updateItemQueue");
+		// REST Entry Point
+		rest()
+				// API to update item and send to activeMQ
+				.put("/item").to("direct:updateItem");
+
+		// Route that sends message to the activeMQ
+		from("direct:updateItem").unmarshal().json(JsonLibrary.Jackson).to("activemq:queue:updateItemQueue")
+				.setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(204));
 
 	}
 

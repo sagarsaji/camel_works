@@ -1,5 +1,8 @@
 package com.ust.mycart.item.processor;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
@@ -28,14 +31,18 @@ public class CategoryNameAddingProcessor implements Processor {
 		JsonNode itemPriceJson = objectMapper.valueToTree(itemPrice);
 		JsonNode stockDetailsJson = objectMapper.valueToTree(stockDetails);
 
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String date = dateFormat.format(new Date());
+		item.setLastUpdateDate(date);
+
 		jsonNode.put("_id", item.get_id());
 		jsonNode.put("itemName", item.getItemName());
 		jsonNode.put("categoryName", categoryname);
 		jsonNode.set("itemPrice", itemPriceJson);
 		jsonNode.set("stockDetails", stockDetailsJson);
 		jsonNode.put("specialProduct", item.getSpecialProduct());
+		jsonNode.put("lastUpdateDate", date);
 
-		System.out.println(jsonNode);
 		exchange.getIn().setBody(jsonNode);
 	}
 

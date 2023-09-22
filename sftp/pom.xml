@@ -10,9 +10,9 @@
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.ust.mycart</groupId>
-	<artifactId>activemqproducer</artifactId>
+	<artifactId>sftp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>activemqproducer</name>
+	<name>sftp</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
@@ -27,36 +27,21 @@
 			<artifactId>camel-spring-boot-starter</artifactId>
 			<version>4.0.0</version>
 		</dependency>
-		<!--
-		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-activemq-starter -->
+		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-cron -->
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-activemq-starter</artifactId>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-cron</artifactId>
 			<version>4.0.0</version>
 		</dependency>
-		<!--
-		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-jackson-starter -->
-		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-jackson-starter</artifactId>
-			<version>4.0.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!--
-		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-mongodb-starter -->
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-mongodb-starter</artifactId>
 			<version>4.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.camel.springboot</groupId>
-			<artifactId>camel-servlet-starter</artifactId>
-			<version>4.0.0</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

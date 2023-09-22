@@ -1,4 +1,4 @@
-package com.ust.mycart.item.processor;
+package com.ust.mycart.activemqproducer.processor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
