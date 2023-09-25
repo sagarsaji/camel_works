@@ -19,7 +19,7 @@ public class ConsumerRoute extends RouteBuilder {
 				.setBody(constant("{\"message\":\"{{server.internalServerError}}\"}"));
 
 		// Route that consumes message from activeMQ and does the update operation
-		from("activemq:queue:updateItemQueue").split(simple("${body[items]}")).split(simple("${body}"))
+		from("activemq:queue:updateItemQueue").split(simple("${body[items]}"))
 				.setHeader("itemid", simple("${body[_id]}"))
 				.setProperty("soldout", simple("${body[stockDetails][soldOut]}"))
 				.setProperty("damaged", simple("${body[stockDetails][damaged]}")).setBody(simple("${header.itemid}"))
@@ -28,7 +28,7 @@ public class ConsumerRoute extends RouteBuilder {
 				.otherwise().log(LoggingLevel.INFO, "Item found for id : ${header.itemid}")
 				.setProperty("availablestock", simple("${body[stockDetails][availableStock]}"))
 				.process(new StockUpdationProcessor())
-				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save").endChoice().end().end();
+				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save").endChoice().end();
 
 	}
 

@@ -38,6 +38,12 @@
 			<artifactId>camel-mongodb-starter</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-jaxb -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-jaxb</artifactId>
+			<version>4.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
