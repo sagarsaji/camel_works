@@ -1,12 +1,11 @@
 package com.ust.mycart.item.route;
 
-import org.apache.camel.Exchange;
 import org.apache.camel.LoggingLevel;
-import org.apache.camel.Processor;
+
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mongodb.MongoDbConstants;
 import org.apache.camel.model.dataformat.JsonLibrary;
-import org.bson.Document;
+
 import org.springframework.stereotype.Component;
 
 import com.ust.mycart.item.entity.Item;
@@ -63,7 +62,7 @@ public class ItemRoute extends RouteBuilder {
 				.post("/item").to("direct:addItems")
 
 				// API to update an item
-				.put("/item").to("direct:updateItems").get("/api").to("direct:mydata");
+				.put("/item").to("direct:updateItems");
 
 		// Route to access item by item id
 		from("direct:getItemsById").setBody(simple("${header._id}"))
@@ -135,20 +134,6 @@ public class ItemRoute extends RouteBuilder {
 				.process(new StockUpdationProcessor())
 				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=save").end().end()
 				.setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(204));
-
-		from("direct:mydata").routeId("schedulerTask")
-				.to("mongodb:mycartdb?database=mycartdb&collection=item&operation=findAll").split(simple("${body}"))
-				.multicast().to("direct:itemTrendAnalyzer").end();
-
-		from("direct:itemTrendAnalyzer").process(new Processor() {
-
-			@Override
-			public void process(Exchange exchange) throws Exception {
-				// TODO Auto-generated method stub
-				Document doc = exchange.getIn().getBody(Document.class);
-				exchange.getIn().setBody(doc);
-			}
-		}).log("to xml : ${body}");
 
 	}
 

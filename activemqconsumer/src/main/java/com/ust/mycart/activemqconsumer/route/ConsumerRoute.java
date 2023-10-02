@@ -2,6 +2,7 @@ package com.ust.mycart.activemqconsumer.route;
 
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.mongodb.CamelMongoDbException;
 import org.springframework.stereotype.Component;
 
 import com.ust.mycart.activemqconsumer.headers.HeaderClass;
@@ -17,6 +18,16 @@ public class ConsumerRoute extends RouteBuilder {
 		onException(Throwable.class).handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(500))
 				.setHeader("Content-Type", constant("application/json"))
 				.setBody(constant("{\"message\":\"{{server.internalServerError}}\"}"));
+		
+		onException(CamelMongoDbException.class)
+			.maximumRedeliveries(3)
+			.redeliveryDelay(1000)
+			.backOffMultiplier(3)
+		    .useExponentialBackOff()
+		    .handled(true)
+		    .setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(500))
+		    .setHeader("Content-Type", constant("application/json"))
+		    .setBody(constant("Connection Problem..."));
 
 		// Route that consumes message from activeMQ and does the update operation
 		from("activemq:queue:updateItemQueue").split(simple("${body[items]}"))

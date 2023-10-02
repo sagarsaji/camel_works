@@ -35,6 +35,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-servlet-starter</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
 			<artifactId>camel-mongodb-starter</artifactId>
 			<version>4.0.0</version>
 		</dependency>
@@ -44,6 +49,15 @@
 			<artifactId>camel-jaxb</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+
+		<!--
+		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-jacksonxml-starter -->
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jacksonxml-starter</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

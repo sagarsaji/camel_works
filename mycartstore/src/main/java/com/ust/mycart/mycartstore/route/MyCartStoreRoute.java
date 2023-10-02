@@ -16,7 +16,7 @@ public class MyCartStoreRoute extends RouteBuilder {
 		onException(Throwable.class).maximumRedeliveries(3).redeliveryDelay(1000).backOffMultiplier(3)
 				.useExponentialBackOff().handled(true).setHeader(HeaderClass.CAMEL_HTTP_RESPONSE_CODE, constant(500))
 				.setHeader("Content-Type", constant("application/json"))
-				.setBody(simple("{\"message\":\"{{server.internalServerError}}\"}"));
+				.setBody(simple("{\"message\":\"${exception.message}\"} "));
 
 		// REST Entry points
 		rest()
@@ -27,13 +27,12 @@ public class MyCartStoreRoute extends RouteBuilder {
 				.get("/category/{category_id}").to("direct:getByCategoryId");
 
 		// Route to fetch item by item id from previous GET service
-		from("direct:getByItemId").toD(
-				"http://localhost:9090/mycart/items/${header._id}?bridgeEndpoint=true&throwExceptionOnFailure=false")
+		from("direct:getByItemId").toD("http://localhost:9090/mycart/items/${header._id}?bridgeEndpoint=true")
 				.log(LoggingLevel.INFO, "item fetched");
 
 		// Route to fetch item by category id from previous GET service
-		from("direct:getByCategoryId").toD(
-				"http://localhost:9090/mycart/category/${header.category_id}?bridgeEndpoint=true&throwExceptionOnFailure=false")
+		from("direct:getByCategoryId")
+				.toD("http://localhost:9090/mycart/category/${header.category_id}?bridgeEndpoint=true")
 				.log(LoggingLevel.INFO, "item fetched");
 
 	}
