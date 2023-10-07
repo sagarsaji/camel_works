@@ -1,36 +1,23 @@
-package com.ust.mycart.item.entity;
+package com.ust.mycart.sftp.entity;
 
-import java.util.List;
-
-public class Item {
+public class JsonResponse {
 
 	private String _id;
-
 	private String itemName;
-
-	private String categoryId;
-
-	private String lastUpdateDate;
-
+	private String categoryName;
 	private ItemPrice itemPrice;
-
 	private StockDetails stockDetails;
-
 	private Boolean specialProduct;
 
-	private List<Review> review;
-
-	public Item(String _id, String itemName, String categoryId, String lastUpdateDate, ItemPrice itemPrice,
-			StockDetails stockDetails, Boolean specialProduct, List<Review> review) {
+	public JsonResponse(String _id, String itemName, String categoryName, ItemPrice itemPrice,
+			StockDetails stockDetails, Boolean specialProduct) {
 		super();
 		this._id = _id;
 		this.itemName = itemName;
-		this.categoryId = categoryId;
-		this.lastUpdateDate = lastUpdateDate;
+		this.categoryName = categoryName;
 		this.itemPrice = itemPrice;
 		this.stockDetails = stockDetails;
 		this.specialProduct = specialProduct;
-		this.review = review;
 	}
 
 	public String get_id() {
@@ -49,20 +36,12 @@ public class Item {
 		this.itemName = itemName;
 	}
 
-	public String getCategoryId() {
-		return categoryId;
+	public String getCategoryName() {
+		return categoryName;
 	}
 
-	public void setCategoryId(String categoryId) {
-		this.categoryId = categoryId;
-	}
-
-	public String getLastUpdateDate() {
-		return lastUpdateDate;
-	}
-
-	public void setLastUpdateDate(String lastUpdateDate) {
-		this.lastUpdateDate = lastUpdateDate;
+	public void setCategoryName(String categoryName) {
+		this.categoryName = categoryName;
 	}
 
 	public ItemPrice getItemPrice() {
@@ -89,15 +68,7 @@ public class Item {
 		this.specialProduct = specialProduct;
 	}
 
-	public List<Review> getReview() {
-		return review;
-	}
-
-	public void setReview(List<Review> review) {
-		this.review = review;
-	}
-
-	public Item() {
+	public JsonResponse() {
 		super();
 	}
 

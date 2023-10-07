@@ -6,12 +6,7 @@ import java.util.Date;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ust.mycart.item.entity.Item;
-import com.ust.mycart.item.entity.ItemPrice;
-import com.ust.mycart.item.entity.StockDetails;
 
 public class DateAddingProcessor implements Processor {
 

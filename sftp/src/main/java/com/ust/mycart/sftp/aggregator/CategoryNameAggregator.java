@@ -18,12 +18,14 @@ public class CategoryNameAggregator implements AggregationStrategy {
 			// Get category information from newExchange
 			String categoryId = newExchange.getProperty("categoryid", String.class);
 			String categoryName = newExchange.getProperty("categoryname", String.class);
+			String recentDate = newExchange.getProperty("recentdate", String.class);
 
 			// Add the category to the map
 			categoryMap.put(categoryId, categoryName);
 
 			// Set the category map as a property on newExchange
 			newExchange.setProperty("categoryMap", categoryMap);
+			newExchange.setProperty("recentDate", recentDate);
 			return newExchange;
 		} else {
 			// Get the existing category map from oldExchange
@@ -37,8 +39,12 @@ public class CategoryNameAggregator implements AggregationStrategy {
 			// Add the category to the map
 			categoryMap.put(categoryId, categoryName);
 
+			String recentDate = oldExchange.getProperty("recentDate", String.class);
+			recentDate = newExchange.getProperty("recentdate", String.class);
+
 			// Set the updated category map as a property on oldExchange
 			oldExchange.setProperty("categoryMap", categoryMap);
+			oldExchange.setProperty("recentDate", recentDate);
 			return oldExchange;
 		}
 

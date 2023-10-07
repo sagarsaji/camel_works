@@ -43,12 +43,27 @@
 			<artifactId>camel-mongodb-starter</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+		<!--
+		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-jsonpath-starter -->
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-jsonpath-starter</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-jaxb -->
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-jaxb</artifactId>
 			<version>4.0.0</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.camel/camel-cron -->
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-cron</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+
 
 		<!--
 		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-jacksonxml-starter -->

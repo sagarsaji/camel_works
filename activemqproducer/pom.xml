@@ -28,6 +28,14 @@
 			<version>4.0.0</version>
 		</dependency>
 		<!--
+		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-log-starter -->
+		<dependency>
+			<groupId>org.apache.camel.springboot</groupId>
+			<artifactId>camel-log-starter</artifactId>
+			<version>4.0.1</version>
+		</dependency>
+
+		<!--
 		https://mvnrepository.com/artifact/org.apache.camel.springboot/camel-activemq-starter -->
 		<dependency>
 			<groupId>org.apache.camel.springboot</groupId>

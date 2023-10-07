@@ -1,8 +1,10 @@
-package com.ust.mycart.item.entity;
+package com.ust.mycart.sftp.entity;
 
 import java.util.List;
 
-public class Item {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public class JsonBody {
 
 	private String _id;
 
@@ -20,7 +22,7 @@ public class Item {
 
 	private List<Review> review;
 
-	public Item(String _id, String itemName, String categoryId, String lastUpdateDate, ItemPrice itemPrice,
+	public JsonBody(String _id, String itemName, String categoryId, String lastUpdateDate, ItemPrice itemPrice,
 			StockDetails stockDetails, Boolean specialProduct, List<Review> review) {
 		super();
 		this._id = _id;
@@ -97,7 +99,7 @@ public class Item {
 		this.review = review;
 	}
 
-	public Item() {
+	public JsonBody() {
 		super();
 	}
 

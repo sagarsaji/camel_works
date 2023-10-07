@@ -41,6 +41,7 @@ public class ItemTrendAnalyzer implements Processor {
 		Map<String, Category> categoryMap = new HashMap<>();
 
 		for (Map<String, Object> product : products) {
+
 			String categoryId = product.get("categoryId").toString();
 
 			// Check if the category already exists in the map
@@ -61,8 +62,8 @@ public class ItemTrendAnalyzer implements Processor {
 			Item item = new Item();
 			item.setItemId(product.get("_id").toString());
 			item.setCategoryId(categoryId);
-			item.setAvailableStock(stockdetails.get("availableStock").intValue());
-			item.setSellingPrice(itemprice.get("sellingPrice").intValue());
+			item.setAvailableStock(stockdetails.get("availableStock").asInt());
+			item.setSellingPrice(itemprice.get("sellingPrice").asInt());
 
 			category.getItems().add(item);
 

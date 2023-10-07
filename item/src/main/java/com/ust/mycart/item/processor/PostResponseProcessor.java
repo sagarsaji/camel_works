@@ -3,12 +3,9 @@ package com.ust.mycart.item.processor;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.ust.mycart.item.entity.Item;
-import com.ust.mycart.item.entity.ItemPrice;
-import com.ust.mycart.item.entity.StockDetails;
+
+import com.ust.mycart.item.entity.Response;
 
 public class PostResponseProcessor implements Processor {
 
@@ -20,23 +17,16 @@ public class PostResponseProcessor implements Processor {
 		exchange.getIn().setBody(item);
 		String categoryname = exchange.getProperty("categoryname", String.class);
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectNode jsonNode = objectMapper.createObjectNode();
+		Response response = new Response();
 
-		ItemPrice itemPrice = item.getItemPrice();
-		StockDetails stockDetails = item.getStockDetails();
+		response.set_id(item.get_id());
+		response.setItemName(item.getItemName());
+		response.setCategoryName(categoryname);
+		response.setItemPrice(item.getItemPrice());
+		response.setStockDetails(item.getStockDetails());
+		response.setSpecialProduct(item.getSpecialProduct());
 
-		JsonNode itemPriceJson = objectMapper.valueToTree(itemPrice);
-		JsonNode stockDetailsJson = objectMapper.valueToTree(stockDetails);
-
-		jsonNode.put("_id", item.get_id());
-		jsonNode.put("itemName", item.getItemName());
-		jsonNode.put("categoryName", categoryname);
-		jsonNode.set("itemPrice", itemPriceJson);
-		jsonNode.set("stockDetails", stockDetailsJson);
-		jsonNode.put("specialProduct", item.getSpecialProduct());
-
-		exchange.getIn().setBody(jsonNode);
+		exchange.getIn().setBody(response);
 
 	}
 
